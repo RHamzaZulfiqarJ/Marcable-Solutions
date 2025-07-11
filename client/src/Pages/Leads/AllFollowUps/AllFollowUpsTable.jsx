@@ -147,23 +147,23 @@ const AllFollowUpsTable = () => {
           placement="bottom">
           <span
             className={`border-[1px] px-[8px] py-[4px] rounded-full capitalize font-primary font-medium 
-          ${params.row?.status == "closedWon" ? "border-green-500 text-green-500" : ""} 
-          ${params.row?.status == "closedLost" ? "border-red-400 text-red-400" : ""} 
-          ${params.row?.status == "followUp" ? "border-sky-400 text-sky-400" : ""}
-          ${params.row?.status == "contactedClient" ? "border-orange-400 text-orange-400" : ""} 
-          ${params.row?.status == "callNotAttend" ? "border-lime-400 text-lime-500" : ""} 
-          ${params.row?.status == "visitSchedule" ? "border-teal-400 text-teal-500" : ""} 
-          ${params.row?.status == "visitDone" ? "border-indigo-400 text-indigo-500" : ""}
-          ${params.row?.status == "newClient" ? "border-rose-700 text-rose-700" : ""}`}>
+            ${params.row?.status == "closedWon" ? "border-green-500 text-green-500" :
+              params.row?.status == "closedLost" ? "border-red-400 text-red-400" : 
+              params.row?.status == "followUp" ? "border-sky-400 text-sky-400" : 
+              params.row?.status == "contactedClient" ? "border-orange-400 text-orange-400" : 
+              params.row?.status == "callNotAttend" ? "border-lime-400 text-lime-500" : 
+              params.row?.status == "visitSchedule" ? "border-teal-400 text-teal-500" : 
+              params.row?.status == "visitDone" ? "border-indigo-400 text-indigo-500" : 
+              params.row?.status == "newClient" ? "border-rose-700 text-rose-700" : "border-gray-700 text-gray-700"}`}>
             <span>
-              {params.row?.status == "closedWon" ? <div>Closed Won</div> : <div></div>}
-              {params.row?.status == "closedLost" ? <div>Closed Lost</div> : <div></div>}
-              {params.row?.status == "followUp" ? <div>Follow Up</div> : <div></div>}
-              {params.row?.status == "ContactedClient" ? <div>Contacted Client</div> : <div></div>}
-              {params.row?.status == "callNotAttend" ? <div>Call Not Attend</div> : <div></div>}
-              {params.row?.status == "visitSchedule" ? <div>Visit Schedule</div> : <div></div>}
-              {params.row?.status == "visitDone" ? <div>Visit Done</div> : <div></div>}
-              {params.row?.status == "newClient" ? <div>New Client</div> : <div></div>}
+              {params.row?.status == "closedWon" ? <div>Closed Won</div> : 
+              params.row?.status == "closedLost" ? <div>Closed Lost</div> : 
+              params.row?.status == "followUp" ? <div>Follow Up</div> : 
+              params.row?.status == "contactedClient" ? <div>Contacted Client</div> : 
+              params.row?.status == "callNotAttend" ? <div>Call Not Attend</div> : 
+              params.row?.status == "visitSchedule" ? <div>Visit Schedule</div> : 
+              params.row?.status == "visitDone" ? <div>Visit Done</div> : 
+              params.row?.status == "newClient" ? <div>New Client</div> : <div>{params.row?.status}</div>}
             </span>
           </span>
         </Tooltip>

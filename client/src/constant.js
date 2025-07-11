@@ -1,8 +1,8 @@
-// export const baseURL = 'https://marcable-solutions-backend.glitch.me/api/v1'
-// export const rootURL = 'https://marcable-solutions-backend.glitch.me'
+export const baseURL = 'http://server.realtors.marcablesolution.com/api/v1'
+export const rootURL = 'http://server.realtors.marcablesolution.com/'
 
-export const baseURL = 'http://localhost:4000/api/v1'
-export const rootURL = 'http://localhost:4000'
+// export const baseURL = 'http://localhost:4000/api/v1'
+// export const rootURL = 'http://localhost:4000'
 
 export const pakistanCities = [
   "Abbottabad",
