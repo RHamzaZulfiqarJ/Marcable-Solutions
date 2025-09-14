@@ -11,9 +11,16 @@ const userSchema = Schema({
     CNIC: { type: String, required: false },
     email: { type: String, required: false, default: '' },
     role: { type: String, required: true, default: 'client', enum: ['client', 'employee', 'manager', 'super_admin'] },
+    status: { type: Boolean, default: true },
+    events: [
+        {
+            _id: false,
+            id: { type: Schema.Types.ObjectId, ref: 'Buffer', required: true },
+            status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }
+        }
+    ],
     uid: { type: String },
 }, { timestamps: true })
-
 
 // Before saving a new document, generate a unique readable identifier
 userSchema.pre('save', async function (next) {

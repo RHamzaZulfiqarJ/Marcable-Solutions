@@ -5,15 +5,16 @@ import { Table } from "../../Components";
 import { Link } from "react-router-dom";
 import Topbar from "./Topbar";
 import { useDispatch, useSelector } from "react-redux";
-import { getCashbooks } from "../../redux/action/cashbook";
+import { getCashbooks, getPayments } from "../../redux/action/cashbook";
 import DeleteModal from "./DeleteModal";
 import { format } from "timeago.js";
 import { PiTrashLight, PiTrashThin } from "react-icons/pi";
+import { Loader } from "../../utils";
 
 function CashBook() {
   ///////////////////////////////////// VARIABLES ////////////////////////////////////////
   const dispatch = useDispatch();
-  const { cashbooks, isFetching, error } = useSelector((state) => state.cashbook);
+  const { cashbooks, isFetching, error, payments } = useSelector((state) => state.cashbook);
   const { loggedUser } = useSelector((state) => state.user);
   const columns = [
     {
@@ -45,11 +46,13 @@ function CashBook() {
     },
     {
       field: "top",
-      headerName: "Type",
+      headerName: "Payment Type",
       headerClassName: "super-app-theme--header",
-      width: 120,
+      width: 140,
       renderCell: (params) => (
-        <div className="font-primary capitalize">{params.row.top}</div>
+        <Tooltip title={params.row.top == "cheque" || params.row.top == "online" ? params.row.number : null}>
+          <div className="font-primary capitalize">{params.row.top} {params.row.top == "cheque" || params.row.top == "online" ? `(${params.row.number})` : null}</div>
+        </Tooltip>
       ),
     },
     {
@@ -66,13 +69,13 @@ function CashBook() {
       width: 140,
       renderCell: (params) => <div className="font-primary">{params.row.amount}</div>,
     },
-    // {
-    //   field: "branch",
-    //   headerName: "Branch",
-    //   headerClassName: "super-app-theme--header",
-    //   width: 190,
-    //   renderCell: (params) => <div className="font-primary">{params.row.branch}</div>,
-    // },
+    {
+      field: "branch",
+      headerName: "Branch",
+      headerClassName: "super-app-theme--header",
+      width: 180,
+      renderCell: (params) => <div className="font-primary">{params.row.branch}</div>,
+    },
     {
       field: "action",
       headerName: "Action",
@@ -96,11 +99,15 @@ function CashBook() {
   ///////////////////////////////////// STATES //////////////////////////////////////
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [cashbookId, setCashbookId] = useState("");
+  const [refreshCards, setRefreshCards] = useState(false);
 
   ///////////////////////////////////// USE EFFECTS //////////////////////////////////////
   useEffect(() => {
-    dispatch(getCashbooks());
-  }, []);
+    if (!openDeleteModal) {
+      dispatch(getCashbooks());
+      setRefreshCards(prev => !prev);
+    }
+  }, [openDeleteModal]);
 
   ///////////////////////////////////// FUNCTIONS //////////////////////////////////////
   const handleOpenDeleteModal = (cId) => {
@@ -115,7 +122,7 @@ function CashBook() {
       <Topbar />
 
       <div className="mt-10">
-        <Cards />
+        <Cards refreshCards={refreshCards} />
       </div>
 
       <div className="mt-6">

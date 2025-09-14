@@ -56,18 +56,20 @@ const approvalSlice = createSlice({
         rejectRefundApprovalReducer: (state, action) => { state.refundApprovals = state.refundApprovals.filter(a => a._id != action.payload._id) },
         deleteApprovalReducer: (state, action) => {
             const { type, result } = action.payload
+            const id = typeof result === 'string' ? result : result._id
+
             switch (type) {
                 case 'request':
-                    state.requestApprovals = state.requestApprovals.filter(a => a._id != result._id)
+                    state.requestApprovals = state.requestApprovals.filter(a => a._id !== id)
                     break;
                 case 'voucher':
-                    state.voucherApprovals = state.voucherApprovals.filter(a => a._id != result._id)
+                    state.voucherApprovals = state.voucherApprovals.filter(a => a._id !== id)
                     break;
                 case 'receipt':
-                    state.receiptApprovals = state.receiptApprovals.filter(a => a._id != result._id)
+                    state.receiptApprovals = state.receiptApprovals.filter(a => a._id !== id)
                     break;
                 case 'refund':
-                    state.refundApprovals = state.refundApprovals.filter(a => a._id != result._id)
+                    state.refundApprovals = state.refundApprovals.filter(a => a._id !== id)
                     break;
                 default:
                     break;

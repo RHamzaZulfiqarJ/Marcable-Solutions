@@ -13,6 +13,7 @@ import {
   PiAlarm,
   PiBell,
   PiGear,
+  PiGearLight,
   PiKeyLight,
   PiList,
   PiListChecks,
@@ -23,6 +24,7 @@ import {
 import { getNotifications } from "../../redux/action/notification";
 import { getTasks } from "../../redux/action/task";
 import ChangePassword from "../../Pages/Auth/ChangePassword";
+import Settings from "./Settings";
 
 const blue = {
   100: "#DAECFF",
@@ -101,11 +103,9 @@ const Navbar = ({ setShowSidebar, showSidebar, tasks, notifications }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  console.log("Tasks", tasks);
-  console.log("Notifications", notifications);
-
   /////////////////////////////////////////// STATES ////////////////////////////////////////////////
   const [date, setDate] = useState(new Date());
+  const [openSettings, setOpenSettings] = useState(false);
   const [openPasswordChange, setOpenPasswordChange] = useState(false);
   const clockRef = useRef();
 
@@ -133,7 +133,6 @@ const Navbar = ({ setShowSidebar, showSidebar, tasks, notifications }) => {
       .replace(/([A-Z])/g, ' $1')
       .replace(/^./, (char) => char.toUpperCase());
   };
-
 
   return (
     <div className={`${pathname.includes('/client/') || pathname.includes('download') ? 'invisible' : 'visible'}`}>
@@ -274,6 +273,15 @@ const Navbar = ({ setShowSidebar, showSidebar, tasks, notifications }) => {
                   </IconButton>
                 </Tooltip>
               </Link>
+
+              {loggedUser?.role == "super_admin" && (
+                <Tooltip title="Settings" arrow placement="bottom">
+                  <IconButton onClick={() => setOpenSettings(true)} className="h-fit hover:text-sky-400" size="small" aria-label="menu">
+                    <PiGear className="text-[25px]" />
+                  </IconButton>
+                </Tooltip>
+              )}
+
             </div>
             {/* profile */}
             <div className="flex items-center border-l-[1px] border-l-[#eeeff0] hover:bg-gray-100">
@@ -310,6 +318,7 @@ const Navbar = ({ setShowSidebar, showSidebar, tasks, notifications }) => {
       </div>
 
       <ChangePassword open={openPasswordChange} setOpen={setOpenPasswordChange} />
+      <Settings open={openSettings} setOpen={setOpenSettings} />
     </div>
   );
 };

@@ -130,12 +130,11 @@ const Login = () => {
                 variant="standard"
                 className="w-full h-[40px] px-[8px]"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
-                startAdornment={
+                endAdornment={
                   <InputAdornment>
                     <button
                       style={showPasswordButton}
                       onClick={handleToggleVisibility}
-                      className="absolute right-0"
                     >
                       {showPassword ? (
                         <PiEyeSlashThin className="text-[25px] m-2 text-black" />

@@ -93,8 +93,10 @@ export const rejectRefundApproval = (approvalId) => async (dispatch) => {
 export const deleteApproval = (approvalId, type) => async (dispatch) => {
     try {
         dispatch(start())
+        console.log(type)
         const { data } = await api.deleteApproval(approvalId)
         dispatch(deleteApprovalReducer({ type, result: data.result }))
+        await dispatch(getApprovals(type))
         dispatch(end())
     } catch (err) {
         dispatch(error(err.message))

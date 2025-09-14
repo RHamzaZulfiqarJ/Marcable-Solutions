@@ -14,7 +14,8 @@ import { getEmployees } from "../../../redux/action/user";
 import { getProjects } from "../../../redux/action/project";
 import { CFormSelect } from "@coreui/react";
 
-const FilterDrawer = ({ open, setOpen, setIsFiltered }) => {
+const Filter = ({ open, setOpen, filter, setFilter, isFiltered, setIsFiltered }) => {
+
   //////////////////////////////// VARIABLES ///////////////////////////////////////////////////
   const dispatch = useDispatch();
   const { projects } = useSelector((state) => state.project);
@@ -50,8 +51,7 @@ const FilterDrawer = ({ open, setOpen, setIsFiltered }) => {
     "Direct Call",
     "Referral",
   ];
-  const degrees = ["Bacholers", "Masters", "PHD", "Other"];
-  const visa = ["Student Visa", "Visit Visa"];
+
   const initialFilterState = {
     city: "",
     startingDate: "",
@@ -74,7 +74,7 @@ const FilterDrawer = ({ open, setOpen, setIsFiltered }) => {
   }));
 
   //////////////////////////////// STATES ///////////////////////////////////////////////////
-  const [filters, setFilters] = useState(initialFilterState);
+  const filters = filter;
 
   //////////////////////////////// USE EFFECTS ///////////////////////////////////////////////////
 
@@ -85,14 +85,12 @@ const FilterDrawer = ({ open, setOpen, setIsFiltered }) => {
 
   //////////////////////////////// FUNCTIONS ///////////////////////////////////////////////////
   const handleFilter = () => {
-    dispatch(filterLeadReducer(filters));
-    setIsFiltered(true);
-    setFilters(initialFilterState);
-    setOpen(false);
-  };
+  setIsFiltered(true);
+  setOpen(false);
+};
 
   const handleChange = (field, value) => {
-    setFilters((pre) => ({ ...pre, [field]: value }));
+    setFilter((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -225,4 +223,4 @@ const FilterDrawer = ({ open, setOpen, setIsFiltered }) => {
   );
 };
 
-export default FilterDrawer;
+export default Filter;

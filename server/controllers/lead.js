@@ -375,11 +375,11 @@ export const uploadLeads = async (req, res) => {
     const newLeads = await Promise.all(
       leads.map(async (lead) => {
         const client = lead.clientPhone ? await User.findOne({ phone: lead.clientPhone }) : null;
-        const property = lead.project ? await Project.findOne({ title: lead.project }) : null;
+        const property = lead.project?.trim() ? await Project.findOne({ uid: lead.project.trim() }) : null;
 
         const newLead = new Lead({
           client: client ? client._id : null,
-          property: property ? property._id : null,
+          property: property ? property._id : lead.project,
           area: lead.area || "",
           city: lead.city || "",
           priority: lead.priority || "moderate",

@@ -47,8 +47,8 @@ const IncomeAndExpense = () => {
                         </ResponsiveContainer>
                         <div className="columns-3 mt-2">
                             <div className="flex justify-center font-extralight sm:text-3xl text-2xl">{currentYear}</div>
-                            <div className="flex justify-center font-extralight sm:text-3xl text-2xl">${incomeSum}</div>
-                            <div className="flex justify-center font-extralight sm:text-3xl text-2xl">${expensesSum}</div>
+                            <div className="flex justify-center font-extralight sm:text-3xl text-2xl">PKR {incomeSum}</div>
+                            <div className="flex justify-center font-extralight sm:text-3xl text-2xl">PKR {expensesSum}</div>
                         </div>
                         <div className="columns-3">
                             <div className="flex justify-center text-sm font-thin text-gray-600">Period</div>

@@ -1,5 +1,5 @@
 import * as api from '../api'
-import { start, end, error, registerReducer, loginReducer, logoutReducer, getUserReducer, getClientsReducer, getUsersReducer, getEmployeesReducer, createClientReducer, createEmployeeReducer, updateUserReducer, deleteUserReducer, } from '../reducer/user'
+import { start, end, error, registerReducer, loginReducer, logoutReducer, getUserReducer, getClientsReducer, getUsersReducer, getEmployeesReducer, createClientReducer, createEmployeeReducer, updateUserReducer, deleteUserReducer, updateEmployeeStatusReducer} from '../reducer/user'
 import Cookies from 'js-cookie'
 
 export const register = (userData, navigate) => async (dispatch) => {
@@ -130,6 +130,16 @@ export const createEmployee = (employeeData, setOpen) => async (dispatch) => {
         const { data } = await api.createEmployee(employeeData)
         dispatch(createEmployeeReducer(data.result))
         setOpen(false)
+        dispatch(end())
+    } catch (err) {
+        dispatch(error(err.message))
+    }
+}
+export const updateStatus = (userId, status, password) => async (dispatch) => {
+    try {
+        dispatch(start())
+        const { data } = await api.updateStatus(userId, status, password)
+        dispatch(updateEmployeeStatusReducer(data.result))
         dispatch(end())
     } catch (err) {
         dispatch(error(err.message))

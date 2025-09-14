@@ -16,13 +16,15 @@ import transcriptReducer from './reducer/transcript';
 import societyReducer from './reducer/society';
 import projectReducer from './reducer/project';
 import inventoryReducer from './reducer/inventory';
+import facebookReducer from './reducer/facebook';
+import facebookLeadsReducer from './reducer/facebookLeads';
 
 const rootReducer = combineReducers({
     upload: uploadReducer,
     approval: approvalReducer,
     event: eventReducer,
     notification: notificationReducer,
-    user: userReducer, // Corrected reducer name
+    user: userReducer,
     task: taskReducer,
     sale: saleReducer,
     lead: leadReducer,
@@ -35,6 +37,8 @@ const rootReducer = combineReducers({
     voucher: voucherReducer,
     deduction: deductionReducer,
     transcript: transcriptReducer,
+    facebook: facebookReducer,
+    facebookLeads: facebookLeadsReducer,
 });
 
 export const store = configureStore({

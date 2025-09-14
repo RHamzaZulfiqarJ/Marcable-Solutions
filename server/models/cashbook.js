@@ -3,12 +3,15 @@ import { generateUniqueIdentifier } from '../utils/utils.js'
 
 const cashbookSchema = Schema({
     leadId: { type: Schema.Types.ObjectId, ref: 'Lead', required: false }, // to show cashbook in ledger
-    type: { type: String, required: true, enum: ['in', 'out'] },
-    staff: { type: String, required: true },
-    clientName: { type: String, required: true },
-    remarks: { type: String, required: true },
-    top: { type: String, required: true },
-    amount: { type: Number, required: true },
+    type: { type: String, required: false, enum: ['in', 'out'] },
+    project: { type: Schema.Types.ObjectId, ref: 'Project', required: false },
+    branch: { type: String, required: false },
+    staff: { type: String, required: false },
+    clientName: { type: String, required: false },
+    remarks: { type: String, required: false },
+    top: { type: String, required: false },
+    number: { type: String, required: false },
+    amount: { type: Number, required: false },
     uid: { type: String },
 }, { timestamps: true })
 

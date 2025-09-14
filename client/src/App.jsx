@@ -38,6 +38,7 @@ import TranscriptPage from "./Pages/Transcript/TranscriptPage";
 import { Navbar, Sidebar } from "./Components";
 import { getNotifications } from "./redux/action/notification";
 import { getTasks } from "./redux/action/task";
+import FbLeads from "./Pages/Leads/FacebookLeads/FbLeads";
 
 const App = () => {
   ///////////////////////////////////// VARIABLES ///////////////////////////////////////
@@ -110,6 +111,7 @@ const App = () => {
                   <Route path="/leads/ledger" element={<Navigate to="/leads" />} />
                   <Route path="/leads/ledger/:leadId" element={<Ledger />} />
                   <Route path="/leads/:leadId" element={<Lead />} />
+                  <Route path="/leads/facebook" element={<FbLeads />} />
                   <Route path="/leads/followUps" element={<Navigate to="/leads" />} />
                   <Route path="/leads/followUps/:leadId" element={<FollowUps />} />
                   <Route path="/leads/refund" element={<Navigate to="/leads" />} />

@@ -1,5 +1,5 @@
 import express from 'express'
-import { getUsers, getUser,filterUser, createClient, createEmployee, updateRole, updateUser, deleteUser, getClients, getEmployees, deleteWholeCollection } from '../controllers/user.js'
+import { getUsers, getUser,filterUser, createClient, createEmployee, updateRole, updateUser, deleteUser, getClients, getEmployees, deleteWholeCollection, updateStatus } from '../controllers/user.js'
 import { verifyManager, verifyEmployee, verifyToken, verifySuperAdmin } from '../middleware/auth.js'
 import { createError } from '../utils/error.js'
 
@@ -11,7 +11,6 @@ const verifyIsSameUser = (req, res, next) => {
         else next(createError(401, 'Only specific user can access this route'))
     } catch (err) {
         next(createError(500, err.message))
-
     }
 }
 
@@ -29,6 +28,7 @@ router.post('/create/employee', verifyToken, verifyManager, createEmployee)
 // PUT
 router.put('/update-role/:userId', verifyToken, verifyManager, updateRole)
 router.put('/update/:userId', verifyToken, verifySuperAdmin, updateUser)
+router.put('/update/status/:userId', verifyToken, verifySuperAdmin, updateStatus)
 
 // DELETE
 router.delete('/delete/:userId', verifyToken, verifySuperAdmin, deleteUser)

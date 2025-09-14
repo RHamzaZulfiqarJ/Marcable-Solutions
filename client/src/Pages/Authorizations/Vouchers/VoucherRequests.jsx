@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Table } from "../../../Components";
 import Topbar from "./Topbar";
-import DeleteModal from "../Refunds/DeleteModal";
+import DeleteModal from "./DeleteModal";
 import { useDispatch, useSelector } from "react-redux";
 import { getApprovals } from "../../../redux/action/approval";
 import Request from "./VoucherRequest";

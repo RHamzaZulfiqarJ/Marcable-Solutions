@@ -8,7 +8,7 @@ import CreateRefund from "./CreateRefund";
 import { searchRefundReducer } from "../../../redux/reducer/refund";
 import { useDispatch, useSelector } from "react-redux";
 
-const Topbar = () => {
+const Topbar = ({ open, setOpen }) => {
   ////////////////////////////////////////// VARIABLES //////////////////////////////////////
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -17,7 +17,6 @@ const Topbar = () => {
   const title = pathname.split("/")[1];
 
   ////////////////////////////////////////// STATES //////////////////////////////////////
-  const [open, setOpen] = useState(false);
   const [scroll, setScroll] = useState("paper");
   const descriptionElementRef = useRef(null);
 

@@ -89,7 +89,7 @@ const Refund = () => {
         <div className="flex gap-[10px] items-center transition-all">
           <Tooltip placement="top" title="Delete">
             <PiTrashLight
-              onClick={handleOpenDeleteModal(params.row)}
+              onClick={() => handleOpenDeleteModal(params.row)}
               className="cursor-pointer text-red-500 text-[23px] hover:text-red-400"
             />
           </Tooltip>
@@ -99,28 +99,25 @@ const Refund = () => {
   ];
 
   /////////////////////////////////////////// STATES //////////////////////////////////////////// 
+  const [openCreateRefund, setOpenCreateRefund] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedRefundId, setSelectedRefundId] = useState("");
 
   /////////////////////////////////////////// USE EFFECTS //////////////////////////////////////////// 
   useEffect(() => {
     dispatch(getLeadRefunds(leadId))
-    dispatch(getLead(leadId))
   }, [leadId])
 
   /////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////// 
-  const handleOpenDeleteModal = (refundId) => {
-    console.log(refundId)
+  const handleOpenDeleteModal = (row) => {
     setOpenDeleteModal(true);
-    setSelectedRefundId(refundId?._id);
-    console.log(selectedRefundId)
+    setSelectedRefundId(row?._id);
   };
 
-
   return (
-    <div className="w-full " >
+    <div className="w-full" >
       <DeleteModal open={openDeleteModal} setOpen={setOpenDeleteModal} refundId={selectedRefundId} />
-      <Topbar />
+      <Topbar open={openCreateRefund} setOpen={setOpenCreateRefund} />
       <Table
         rows={refunds}
         columns={columns}

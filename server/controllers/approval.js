@@ -75,7 +75,7 @@ export const acceptVoucherApproval = async (req, res, next) => {
             return next(createError(404, 'Approval not found.'));
         }
 
-        const admin = await User.findById('672b6beeaee13b66dfca3308');
+        const admin = await User.findOne({ role: "super_admin" });
         if (!admin) {
             return next(createError(404, 'Admin user not found.'));
         }
@@ -119,7 +119,7 @@ export const rejectVoucherApproval = async (req, res, next) => {
             return next(createError(404, 'Approval not found.'));
         }
 
-        const admin = await User.findById('672b6beeaee13b66dfca3308');
+        const admin = await User.findOne({ role: "super_admin" });
         if (!admin) {
             return next(createError(404, 'Admin user not found.'));
         }

@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-import { Add, Close, Delete } from "@mui/icons-material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Path } from "../../../utils";
 import { Chip, FormControl, Input, InputAdornment, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { getEmployeeLeads, getLeads, searchLead } from "../../../redux/action/lead";
 import { PiArchive, PiChartBar, PiMagnifyingGlass } from "react-icons/pi";
 import { FiFilter, FiList, FiUser } from "react-icons/fi";
-import { searchLeadReducer } from "../../../redux/reducer/lead";
 import Filter from "./Filter";
-const Topbar = () => {
+
+const Topbar = ({ filters, setFilter, isFiltered, setIsFiltered, searchTerm, setSearchTerm }) => {
+
   ////////////////////////////////////////// VARIABLES //////////////////////////////////////
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -37,8 +36,8 @@ const Topbar = () => {
   }, [open]);
 
   ////////////////////////////////////////// FUNCTIONS //////////////////////////////////////
-  const handleSearch = (searchTerm) => {
-    dispatch(searchLeadReducer(searchTerm));
+  const handleSearch = (Term) => {
+    setSearchTerm(Term)
   };
 
   const handleOpenFilter = () => {
@@ -86,7 +85,14 @@ const Topbar = () => {
         </div>
       </div>
 
-      <Filter open={openFilter} setOpen={setOpenFilter} />
+      <Filter
+        open={openFilter}
+        setOpen={setOpenFilter}
+        filter={filters}
+        setFilter={setFilter}
+        isFiltered={isFiltered}
+        setIsFiltered={setIsFiltered}
+      />
     </div>
   );
 };

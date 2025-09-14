@@ -105,6 +105,18 @@ function Leads({ type, showSidebar }) {
   const { loggedUser } = useSelector((state) => state.user);
   const role = loggedUser.role;
 
+  const formatWhatsAppLink = (number) => {
+    let cleaned = number?.replace(/\D/g, '') // remove spaces, dashes, etc.
+
+    if (cleaned?.startsWith('00')) {
+      cleaned = cleaned?.slice(2) // remove leading 00
+    } else if (cleaned?.startsWith('0')) {
+      cleaned = '92' + cleaned?.slice(1) // assume PK if starts with 0
+    }
+
+    return cleaned;
+  }
+
   const columns = [
     {
       field: "uid",
@@ -132,9 +144,16 @@ function Leads({ type, showSidebar }) {
       headerClassName: "super-app-theme--header",
       width: 150,
       renderCell: (params) => (
-        <div className={`font-primary font-light`}>
-          {params.row?.client?.phone || params.row?.clientPhone}
-        </div>
+        <Tooltip title={"Click to open on WhatsApp"} arrow className={`font-primary font-light`}>
+          <a 
+            href={`https://wa.me/${formatWhatsAppLink(params.row?.clientPhone)}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hover:text-red-500 duration-200 transition-colors"
+          >
+            {params.row?.clientPhone}
+          </a>
+        </Tooltip>
       ),
     },
     {
@@ -238,8 +257,10 @@ function Leads({ type, showSidebar }) {
               />
             </Tooltip>
           )}
-          <Tooltip placement="top" title="View">
-            <div className="cursor-pointer" onClick={() => handleOpenViewModal(params.row?._id)}>
+          <Tooltip placement="top" title="View (Press Ctrl + Click to open in new tab)">
+            <div
+              className="cursor-pointer"
+              onClick={(e) => handleOpenViewModal(params.row?._id, e)}>
               <IoOpenOutline className="cursor-pointer text-orange-500 text-[23px] hover:text-orange-400" />
             </div>
           </Tooltip>
@@ -277,16 +298,20 @@ function Leads({ type, showSidebar }) {
                 onClick={() => handleOpenStatusModal(params.row)}>
                 Update Status
               </StyledMenuItem>
-              <StyledMenuItem
-                className="text-gray-600 flex font-primary"
-                onClick={() => handleOpenShiftLeadModal(params.row)}>
-                Shift Lead
-              </StyledMenuItem>
-              <StyledMenuItem
-                className="text-gray-600 flex font-primary"
-                onClick={() => handleOpenShareLeadModal(params.row)}>
-                Share Lead
-              </StyledMenuItem>
+              {loggedUser?.role != "employee" && (
+                <div>
+                  <StyledMenuItem
+                    className="text-gray-600 flex font-primary"
+                    onClick={() => handleOpenStatusModal(params.row)}>
+                    Update Status
+                  </StyledMenuItem>
+                  <StyledMenuItem
+                    className="text-gray-600 flex font-primary"
+                    onClick={() => handleOpenShiftLeadModal(params.row)}>
+                    Shift Lead
+                  </StyledMenuItem>
+                </div>
+              )}
               <StyledMenuItem
                 className="text-gray-600 flex font-primary"
                 onClick={() => navigateToRefund(params.row)}>
@@ -323,8 +348,17 @@ function Leads({ type, showSidebar }) {
   const [isFiltered, setIsFiltered] = useState(false);
   const [options, setOptions] = useState({
     isKanbanView: false,
-    showEmployeeLeads: false,
     showArchivedLeads: false,
+  });
+  const [filters, setFilters] = useState({
+    city: null,
+    status: null,
+    priority: null,
+    source: null,
+    property: null,
+    allocatedTo: null,
+    startingDate: null,
+    endingDate: null,
   });
   ////////////////////////////////////// USE EFFECTS //////////////////////////////
   useEffect(() => {
@@ -338,22 +372,66 @@ function Leads({ type, showSidebar }) {
   }, [isFiltered]);
 
   useEffect(() => {
-    let updatedLeads = leads;
+    let updatedLeads = allLeads;
+
     if (search) {
-      updatedLeads = leads.filter(lead =>
-        lead.clientName.toLowerCase().includes(search.toLowerCase()) ||
-        lead.clientPhone.toLowerCase().includes(search.toLowerCase()) ||
-        lead.uid.toLowerCase().includes(search.toLowerCase())
+      updatedLeads = updatedLeads.filter(
+        (lead) =>
+          lead.clientName?.toLowerCase().includes(search.toLowerCase()) ||
+          lead.clientPhone?.toLowerCase().includes(search.toLowerCase()) ||
+          lead.uid?.toLowerCase().includes(search.toLowerCase())
       );
     }
-    if (options.showArchivedLeads) {
-      updatedLeads = updatedLeads.filter(lead => lead.isArchived);
-    } else {
-      updatedLeads = updatedLeads.filter(lead => !lead.isArchived);
-    }
-    setFilteredLeads(updatedLeads);
-  }, [search, leads, options.showArchivedLeads]);
 
+    if (filters && isFiltered) {
+      console.log("Filters applied:", filters);
+      if (filters.city) {
+        updatedLeads = updatedLeads.filter((lead) => lead.city?.toLowerCase() === filters.city?.toLowerCase());
+      }
+
+      if (filters.status) {
+        updatedLeads = updatedLeads.filter((lead) => lead.status?.toLowerCase() === filters.status?.toLowerCase());
+      }
+
+      if (filters.priority) {
+        updatedLeads = updatedLeads.filter((lead) => lead.priority?.toLowerCase() === filters.priority?.toLowerCase());
+      }
+
+      if (filters.source) {
+        updatedLeads = updatedLeads.filter((lead) => lead.source?.toLowerCase() === filters.source?.toLowerCase());
+      }
+
+      if (filters.property) {
+        updatedLeads = updatedLeads.filter((lead) => lead.property?._id === filters.property);
+      }
+
+      if (filters.allocatedTo) {
+        updatedLeads = updatedLeads.filter((lead) =>
+          lead.allocatedTo?.some((emp) => emp._id === filters.allocatedTo)
+        );
+      }
+
+      if (filters.startingDate) {
+        updatedLeads = updatedLeads.filter(
+          (lead) => new Date(lead.createdAt) >= new Date(filters.startingDate)
+        );
+      }
+
+      if (filters.endingDate) {
+        updatedLeads = updatedLeads.filter(
+          (lead) => new Date(lead.createdAt) <= new Date(filters.endingDate)
+        );
+      }
+    }
+
+    if (options.showArchivedLeads) {
+      updatedLeads = updatedLeads.filter((lead) => lead.isArchived);
+    } else {
+      updatedLeads = updatedLeads.filter((lead) => !lead.isArchived);
+    }
+
+    setFilteredLeads(updatedLeads);
+  }, [search, leads, filters, options.showArchivedLeads]);
   ////////////////////////////////////// FUNCTION //////////////////////////////
   const handleArchive = (lead) => {
     dispatch(updateLead(lead._id, { isArchived: true }, { loading: false }))
@@ -380,17 +458,19 @@ function Leads({ type, showSidebar }) {
     setOpenShiftLeadModal(true);
     dispatch(getLeadReducer(lead));
   };
-  const handleOpenShareLeadModal = (lead) => {
-    setOpenShareLeadModal(true);
-    dispatch(getLeadReducer(lead));
-  };
   const handleOpenDeleteModal = (leadId) => {
     setOpenDeleteModal(true);
     setSelectedLeadId(leadId);
   };
-  const handleOpenViewModal = (leadId) => {
+  const handleOpenViewModal = (leadId, event) => {
     dispatch(getLeadReducer(leadId));
-    navigate(`/leads/${leadId}`);
+    const url = `/leads/${leadId}`;
+
+    if (event.ctrlKey || event.metaKey) {
+      window.open(url, "_blank");
+    } else {
+      navigate(url);
+    }
   };
   const navigateToRefund = (lead) => {
     if (lead.isAppliedForRefund) {
@@ -411,7 +491,13 @@ function Leads({ type, showSidebar }) {
       <UpateStatusModal open={openStatusModal} setOpen={setOpenStatusModal} />
       <ShiftLeadModal open={openShiftLeadModal} setOpen={setOpenShiftLeadModal} />
       <ShareLeadModal open={openShareLeadModal} setOpen={setOpenShareLeadModal} />
-      <Filter open={openFilters} setOpen={setOpenFilters} setIsFiltered={setIsFiltered} />
+      <Filter
+        open={openFilters}
+        setOpen={setOpenFilters}
+        setIsFiltered={setIsFiltered}
+        filters={filters}
+        setFilters={setFilters}
+      />
       <Attachments
         open={openAttachmentModal}
         setOpen={setOpenAttachmentModal}
@@ -425,9 +511,12 @@ function Leads({ type, showSidebar }) {
         setOpenFilters={setOpenFilters}
         setIsFiltered={setIsFiltered}
         isFiltered={isFiltered}
+        filters={filters}
+        setFilters={setFilters}
         search={search}
         setSearch={setSearch}
       />
+      
       {options.isKanbanView ? (
         <Kanban options={options} setOptions={setOptions} />
       ) : (

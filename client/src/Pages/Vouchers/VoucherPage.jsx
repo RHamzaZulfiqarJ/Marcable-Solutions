@@ -40,11 +40,19 @@ const VoucherPage = ({ }) => {
   })
 
   return (
-    <div ref={pdfRef} className="completePdfPage w-full flex justify-center ">
+    <div
+      ref={pdfRef}
+      className="completePdfPage w-full flex justify-center"
+      style={{
+        width: "1024px",
+        height: "auto",
+        margin: "0 auto",
+        transform: "scale(1)", // no scaling
+        transformOrigin: "top left",
+        background: "#fff",
+      }}
+    >
       <div className="w-[51rem] h-full pt-10 bg-white">
-
-
-
         <div className="flex justify-between items w-full relative py-[1rem] ">
         <div className="flex justify-start">
           <img src="/images/logo.png" className="h-28 mb-5" />

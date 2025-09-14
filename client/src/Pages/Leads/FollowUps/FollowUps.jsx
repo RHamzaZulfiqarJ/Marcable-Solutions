@@ -67,7 +67,11 @@ const FollowUps = () => {
       headerName: "Remarks",
       headerClassName: "super-app-theme--header",
       width: 400,
-      renderCell: (params) => <div className="font-primary font-light">{params.row.remarks}</div>,
+      renderCell: (params) => (
+        <div className="font-primary font-light whitespace-normal break-words max-w-full overflow-hidden">
+          {params.row.remarks}
+        </div>
+      ),
     },
     {
       field: "createdat",

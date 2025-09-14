@@ -32,6 +32,20 @@ const Lead = () => {
 
   //////////////////////////////////// Functions /////////////////////////////////////
 
+  const phoneNumber = currentLead?.clientPhone;
+
+  const formatWhatsAppLink = (number) => {
+    let cleaned = number?.replace(/\D/g, '') // remove spaces, dashes, etc.
+
+    if (cleaned?.startsWith('00')) {
+      cleaned = cleaned?.slice(2) // remove leading 00
+    } else if (cleaned?.startsWith('0')) {
+      cleaned = '92' + cleaned?.slice(1) // assume PK if starts with 0
+    }
+
+    return cleaned;
+  }
+
   return (
     <div className="w-full font-primary">
       <h1 className="text-primary-blue text-[32px] capitalize font-light">Lead Details</h1>
@@ -62,7 +76,18 @@ const Lead = () => {
                   <TableBody>
                     <TableRow sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                       <TableCell sx={{ fontFamily: "'Montserrat', sans-serif" }}><Tooltip title={currentLead?.clientName} arrow>{currentLead?.clientName}</Tooltip></TableCell>
-                      <TableCell sx={{ fontFamily: "'Montserrat', sans-serif" }}><Tooltip title={currentLead?.clientPhone} arrow>{currentLead?.clientPhone}</Tooltip></TableCell>
+                      <TableCell sx={{ fontFamily: "'Montserrat', sans-serif" }}>
+                        <Tooltip title={"Click to open on WhatsApp"} arrow>
+                          <a 
+                            href={`https://wa.me/${formatWhatsAppLink(currentLead?.clientPhone)}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="hover:text-red-500 duration-200 transition-colors"
+                          >
+                            {phoneNumber}
+                          </a>
+                        </Tooltip>
+                      </TableCell>
                       <TableCell sx={{ fontFamily: "'Montserrat', sans-serif" }}><Tooltip title={currentLead?.client?.CNIC} arrow>{currentLead?.client?.CNIC}</Tooltip></TableCell>
                       <TableCell sx={{ fontFamily: "'Montserrat', sans-serif" }}><Tooltip title={currentLead?.client?.city} arrow>{currentLead?.client?.city}</Tooltip></TableCell>
                       <TableCell sx={{ fontFamily: "'Montserrat', sans-serif" }}><Tooltip title={currentLead?.client?.email} arrow>{currentLead?.client?.email}</Tooltip></TableCell>
@@ -81,7 +106,7 @@ const Lead = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ fontFamily: "'Montserrat', sans-serif", color: 'rgb(32 174 227)', fontSize: '16px' }}>Allocated To</TableCell>
-                      <TableCell sx={{ fontFamily: "'Montserrat', sans-serif", color: 'rgb(32 174 227)', fontSize: '16px' }}>Property</TableCell>
+                      <TableCell sx={{ fontFamily: "'Montserrat', sans-serif", color: 'rgb(32 174 227)', fontSize: '16px' }}>Project</TableCell>
                       <TableCell sx={{ fontFamily: "'Montserrat', sans-serif", color: 'rgb(32 174 227)', fontSize: '16px' }}>Area</TableCell>
                       <TableCell sx={{ fontFamily: "'Montserrat', sans-serif", color: 'rgb(32 174 227)', fontSize: '16px' }}>Source</TableCell>
                       <TableCell sx={{ fontFamily: "'Montserrat', sans-serif", color: 'rgb(32 174 227)', fontSize: '16px' }}>Created</TableCell>

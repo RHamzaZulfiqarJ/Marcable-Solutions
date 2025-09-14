@@ -1,7 +1,7 @@
 import { KeyboardArrowRight } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createCashbook } from "../../redux/action/cashbook";
+import { createCashbook, getPayments } from "../../redux/action/cashbook";
 import { useNavigate } from "react-router-dom";
 import {
   Divider,
@@ -17,6 +17,7 @@ import { PiNotepad, PiXLight } from "react-icons/pi";
 import { getClients, getEmployees } from "../../redux/action/user";
 import cashbook from "../../redux/reducer/cashbook";
 import { CFormSelect } from "@coreui/react";
+import { getProjects } from "../../redux/action/project";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -24,23 +25,25 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 function CreateCashBook({ open, setOpen, scroll }) {
 
-
   const dispatch = useDispatch();
   const { currentLead: lead } = useSelector(state => state.lead)
   const { employees, clients } = useSelector(state => state.user)
+  const { projects } = useSelector(state => state.project)
   const paymentTypes = [
     { name: 'Cash', value: 'cash' },
     { name: 'Cheque', value: 'cheque' },
-    { name: 'Credit Card', value: 'creditCard' },
     { name: 'Online', value: 'online' },
   ]
   const initialCashbookState = {
     staff: "",
     clientName: "",
     remarks: "",
+    branch: "",
+    project: "",
     top: "",
-    amount: '',
-    type: '',
+    number: "",
+    amount: "",
+    type: "",
   }
 
   const [cashbookData, setCashbookData] = useState(initialCashbookState);
@@ -49,11 +52,12 @@ function CreateCashBook({ open, setOpen, scroll }) {
   useEffect(() => {
     dispatch(getEmployees())
     dispatch(getClients())
+    dispatch(getProjects())
   }, [open])
+
   useEffect(() => {
     setCashbookData({ ...cashbookData })
   }, [lead])
-
 
   ///////////////////////////////////////////////// FUNCTIONS ///////////////////////////////////////////////////////
 
@@ -62,11 +66,12 @@ function CreateCashBook({ open, setOpen, scroll }) {
   };
 
   const handleSubmit = (e) => {
-    // clientName, top, remarks, amount, type, staff
-    const { staff, clientName, remarks, top, amount, type } = cashbookData
-    if (!staff || !clientName || !remarks || !top || !amount || !type) return alert("Make sure to provide all the fields")
+    const { staff, clientName, remarks, top, number, amount, type, branch, project } = cashbookData
+    if (!staff || !clientName || !remarks || !top || !amount || !type || !branch || !project) return alert("Make sure to provide all the fields")
 
     dispatch(createCashbook({ ...cashbookData, leadId: lead?._id }));
+    dispatch(getPayments());
+    
     setOpen(false);
     setCashbookData(initialCashbookState);
   };
@@ -129,6 +134,35 @@ function CreateCashBook({ open, setOpen, scroll }) {
                 </td>
               </tr>
               <tr>
+                <td className="pb-4 text-lg">Project </td>
+                <td className="pb-4">
+                  <CFormSelect
+                    value={cashbookData.project}
+                    onChange={(e) => handleChange("project", e.target.value)}
+                    className="border-[1px] p-2 rounded-md w-full border-[#c1c1c1] cursor-pointer text-black">
+                    <option value="">Select an Option</option>
+                    {projects.map((project, key) => (
+                      <option key={project?._id} value={project?._id}>
+                        {project?.title}
+                      </option>
+                    ))}
+                  </CFormSelect>
+                </td>
+              </tr>
+              <tr>
+                <td className="pb-4 text-lg">Branch </td>
+                <td className="pb-4">
+                  <TextField
+                    name="branch"
+                    type='text'
+                    value={cashbookData.branch}
+                    onChange={(e) => handleChange('branch', e.target.value)}
+                    size="small"
+                    fullWidth
+                  />
+                </td>
+              </tr>
+              <tr>
                 <td className="pb-4 text-lg">Payment Type </td>
                 <td className="pb-4">
                   <CFormSelect
@@ -143,6 +177,21 @@ function CreateCashBook({ open, setOpen, scroll }) {
                   </CFormSelect>
                 </td>
               </tr>
+              {cashbookData.top === "cheque" || cashbookData.top === "online" ? (
+                <tr>
+                  <td className="pb-4 text-lg">{cashbookData.top === "cheque" ? "Cheque No." : "Online Transaction ID"} </td>
+                  <td className="pb-4">
+                    <TextField
+                      name="number"
+                      value={cashbookData.number}
+                      onChange={(e) => handleChange("number", e.target.value)}
+                      size="small"
+                      type="text"
+                      fullWidth
+                    />
+                  </td>
+                </tr>
+              ) : null}
               <tr>
                 <td className="pb-4 text-lg">Amount </td>
                 <td className="pb-4">

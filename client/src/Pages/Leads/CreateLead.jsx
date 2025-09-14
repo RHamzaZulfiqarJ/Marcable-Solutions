@@ -93,19 +93,15 @@ const CreateLead = ({ setOpen, open, scroll }) => {
   //////////////////////////////////////// FUNCTIONS //////////////////////////////////
   const handleSubmit = (e) => {
     e.preventDefault();
-    const {
-      clientName,
-      clientPhone,
-      city,
-      priority,
-      area,
-      status,
-      source,
-      property,
-      description,
-    } = leadData;
-
-    dispatch(createLead({ ...leadData, count: leadCountsToCreate < 1 ? 1 : leadCountsToCreate, ...followUpData }, navigate));
+    
+    dispatch(
+      createLead(
+        { ...leadData, count: leadCountsToCreate < 1 ? 1 : leadCountsToCreate, ...followUpData },
+        navigate
+      )
+    ).then(() => {
+      dispatch(getLeads()); // refresh list immediately
+    });
 
     setLeadData(initialLeadState);
     setFollowUpData(initialFollowUpState);

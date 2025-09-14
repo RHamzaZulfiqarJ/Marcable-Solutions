@@ -21,6 +21,7 @@ const DeleteModal = ({ open, setOpen, refundId }) => {
   const handleClose = () => {
     setOpen(false);
   };
+  
   const handleDelete = () => {
     dispatch(deleteRefund(refundId));
     setOpen(false);

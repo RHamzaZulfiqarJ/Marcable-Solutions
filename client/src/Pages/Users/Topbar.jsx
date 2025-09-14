@@ -9,7 +9,7 @@ import CreateUser from "./CreateEmployee";
 import Filter from "./Filter";
 import { searchUserReducer } from "../../redux/reducer/user";
 
-const Topbar = ({ view, setView, setIsFiltered, isFiltered, search, setSearch }) => {
+const Topbar = ({ setIsFiltered, isFiltered, search, setSearch }) => {
 
   ///////////////////////////////////////// VARIABLES ///////////////////////////////////////////////////
   const { pathname } = useLocation();
@@ -84,7 +84,7 @@ const Topbar = ({ view, setView, setIsFiltered, isFiltered, search, setSearch })
                 />
               </FormControl>
             </div>
-            <Tooltip title="Filter" arrow placement="top">
+            {/* <Tooltip title="Filter" arrow placement="top">
               <div
                 onClick={handleToggleFilters}
                 className={` p-2 rounded-md cursor-pointer ${openFilters
@@ -93,7 +93,7 @@ const Topbar = ({ view, setView, setIsFiltered, isFiltered, search, setSearch })
                   }`}>
                 <FiFilter className="text-[25px] " />
               </div>
-            </Tooltip>
+            </Tooltip> */}
             <div>
               <Tooltip title="Add New Employee" placement="top" arrow>
                 <div onClick={handleCreateopen("body")}>

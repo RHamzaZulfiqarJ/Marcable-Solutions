@@ -2,6 +2,8 @@ import express from 'express'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import cors from 'cors'
+import cron from 'node-cron'
+
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -23,6 +25,11 @@ import transcriptRoutes from './routes/transcript.js'
 import projectRoutes from './routes/project.js'
 import societyRoutes from './routes/society.js'
 import inventoryRoutes from './routes/inventory.js'
+import webhookRoutes from './routes/webhooks.js'
+import facebookRoutes from './routes/facebook.js'
+import facebookLeads from './routes/facebookLead.js'
+
+import { refreshToken } from './controllers/webhooks.js'
 
 dotenv.config()
 const app = express()
@@ -60,6 +67,9 @@ app.use('/api/v1/refund', refundRoutes)
 app.use('/api/v1/voucher', voucherRoutes)
 app.use('/api/v1/deduction', deductionRoutes)
 app.use('/api/v1/trasncript', transcriptRoutes)
+app.use('/api/v1/webhooks', webhookRoutes)
+app.use('/api/v1/facebook', facebookRoutes)
+app.use('/api/v1/facebook/leads', facebookLeads)
  
 app.use((err, req, res, next) => {
     const message = err.message || 'Something went wrong.'
@@ -71,3 +81,8 @@ app.use((err, req, res, next) => {
 mongoose.connect(CONNECTION_URL)
     .then(() => app.listen(PORT, () => console.log('listening at port ' + PORT)))
     .catch((err) => console.log('error in connection with mongoDB = \n', err))
+
+cron.schedule("0 0 */50 * *", () => {
+  console.log("⏳ Refreshing Facebook Access Token...");
+  refreshToken();
+});

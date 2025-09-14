@@ -5,7 +5,6 @@ import Cashbook from '../models/cashbook.js'
 import Notification from '../models/notification.js'
 import { createError } from '../utils/error.js'
 
-
 export const getRefund = async (req, res, next) => {
     try {
 
@@ -90,7 +89,7 @@ export const acceptRefund = async (req, res, next) => {
         const findedRefund = await Refund.findById(refundId)
         if (!findedRefund) return next(createError(400, 'Refund not exist'))
 
-        const admin = await User.findById(req.user._id)
+        const admin = await User.findOne({ role: "super_admin" });
         const inputPassword = password;
         const savedPassword = admin?.password
         const isPasswordCorrect = await bcrypt.compare(inputPassword, savedPassword)
@@ -115,14 +114,14 @@ export const rejectRefund = async (req, res, next) => {
         const findedRefund = await Refund.findById(refundId)
         if (!findedRefund) return next(createError(400, 'Refund not exist'))
 
-        const admin = await User.findById(req.user._id)
+        const admin = await User.findOne({ role: "super_admin" });
         const inputPassword = password;
         const savedPassword = admin?.password
         const isPasswordCorrect = await bcrypt.compare(inputPassword, savedPassword)
         if (!isPasswordCorrect) return next(createError(401, 'Incorrect Password'))
 
         const updatedRefund = await Refund.findByIdAndUpdate(refundId, { $set: { status: 'rejected' } }, { new: true })
-        await Notification.findByIdAndDelete(cashbookData.notificationId)
+        await Notification.findByIdAndDelete(Cashbook.notificationId)
         res.status(200).json({ result: updatedRefund, message: 'Refund rejected successfully', success: true })
 
     } catch (err) {

@@ -20,7 +20,7 @@ const Stats = () => {
         <div className="bg-white border-b-[3px] border-b-emerald-300 md:mt-0 mt-4 shadow-none rounded-md">
           <CardContent className="flex-grow-[1] flex justify-between items-center font-primary">
             <div>
-              <p className="text-2xl text-[#455a64]">${payments?.todayReceived}</p>
+              <p className="text-2xl text-[#455a64]">PKR {payments?.todayReceived}</p>
               <p className="text-md text-slate-500 text-opacity-70">Payments - Today</p>
             </div>
             <div className="flex justify-end">
@@ -34,7 +34,7 @@ const Stats = () => {
         <div className="bg-white border-b-[3px] border-b-sky-400 md:mt-0 mt-4 shadow-none rounded-md">
           <CardContent className="flex-grow-[1] flex justify-between items-center font-primary">
             <div>
-              <p className="text-2xl text-[#455a64]">${payments?.thisMonthReceived}</p>
+              <p className="text-2xl text-[#455a64]">PKR {payments?.thisMonthReceived}</p>
               <p className="text-md text-slate-500 text-opacity-70">
                 Payments - This Month
               </p>
@@ -50,7 +50,7 @@ const Stats = () => {
         <div className="bg-white border-b-[3px] border-b-amber-400 md:mt-0 mt-4 shadow-none rounded-md">
           <CardContent className="flex-grow-[1] flex justify-between items-center font-primary">
             <div>
-              <p className="text-2xl text-[#455a64]">${payments?.thisYearReceived}</p>
+              <p className="text-2xl text-[#455a64]">PKR {payments?.thisYearReceived}</p>
               <p className="text-md text-slate-500 text-opacity-70">
                 Payments - This Year
               </p>

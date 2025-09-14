@@ -1,6 +1,6 @@
 import { Modal, Dialog, DialogTitle, DialogContent, DialogActions, Button, DialogContentText } from '@mui/material'
 import React from 'react'
-import { deleteCashbook } from '../../redux/action/cashbook'
+import { deleteCashbook, getPayments } from '../../redux/action/cashbook'
 import { useDispatch, useSelector } from 'react-redux'
 
 const DeleteModal = ({ open, setOpen, cashbookId }) => {
@@ -15,6 +15,7 @@ const DeleteModal = ({ open, setOpen, cashbookId }) => {
   }
   const handleDelete = () => {
     dispatch(deleteCashbook(cashbookId))
+    dispatch(getPayments());
     setOpen(false)
   }
 
@@ -33,10 +34,17 @@ const DeleteModal = ({ open, setOpen, cashbookId }) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
-        <Button onClick={handleDelete} autoFocus>
-          {isFetching ? 'Deleting' : 'Delete'}
-        </Button>
+        <button
+          className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg font-primary"
+          onClick={handleClose}>
+          Cancel
+        </button>
+        <button
+          className="bg-red-400 hover:bg-red-500 text-white px-4 py-2 rounded-lg font-primary"
+          onClick={handleDelete}
+          autoFocus>
+          Delete
+        </button>
       </DialogActions>
     </Dialog >
   )

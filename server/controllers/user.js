@@ -5,13 +5,11 @@ import bcrypt from 'bcryptjs'
 
 export const getUsers = async (req, res, next) => {
     try {
-
         const users = await User.find()
         res.status(200).json({ result: users, message: 'users fetched seccessfully', success: true })
 
     } catch (err) {
         next(createError(500, err.message))
-
     }
 }
 
@@ -150,7 +148,39 @@ export const updateUser = async (req, res, next) => {
 
     } catch (err) {
         next(createError(500, err.message))
+    }
+}
 
+export const updateStatus = async (req, res, next) => {
+    try {
+        const { userId } = req.params
+        const { password, status } = req.body
+
+        
+
+        const admin = await User.findOne({ role: "super_admin" });
+        if (!admin) {
+            return next(createError(404, 'Admin user not found.'));
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(password, admin.password);
+        if (!isPasswordCorrect) {
+            return next(createError(401, 'Incorrect Password'));
+        }
+
+        const findedUser = await User.findById(userId)
+
+        if (!findedUser) return next(createError(400, 'User not exist'))
+
+        const result = await User.findByIdAndUpdate(
+            userId,
+            { $set: { status: status } },
+            { new: true }
+        );
+        
+        res.status(200).json({ result: result, message: 'User status updated successfully', success: true })
+    } catch (err) {
+        next(createError(500, err.message))
     }
 }
 

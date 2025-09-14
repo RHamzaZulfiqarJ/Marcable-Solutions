@@ -6,6 +6,7 @@ const saleSchema = Schema({
     staff: { type: String, required: false },
     clientName: { type: String, required: false },
     paymentType: { type: String, required: false },
+    number: { type: String, required: false },
     netPrice: { type: Number, required: false },
     receivedAmount: { type: Number, required: false },
     profit: { type: Number, required: false },

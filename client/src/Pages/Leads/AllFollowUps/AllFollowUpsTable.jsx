@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getFollowUpsStats, getEmployeeFollowUpsStats } from "../../../redux/action/followUp";
@@ -11,7 +11,7 @@ import { getLeadReducer } from "../../../redux/reducer/lead";
 import { useNavigate } from "react-router-dom";
 import { Loader } from "../../../utils";
 
-const AllFollowUpsTable = () => {
+const AllFollowUpsTable = ({ option }) => {
   /////////////////////////////////////////////////// VARIABLES ////////////////////////////////////////////////
   const dispatch = useDispatch();
   const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -20,17 +20,16 @@ const AllFollowUpsTable = () => {
   const navigate = useNavigate();
 
   /////////////////////////////////////////////////// STATES ////////////////////////////////////////////////
-  const [showLead, setShowLead] = useState(false);
-  const [selectedLeadId, setSelectedLeadId] = useState(false);
 
   /////////////////////////////////////////////////// USE EFFECTS ////////////////////////////////////////////////
   useEffect(() => {
     loggedUser.role == "employee"
-      ? dispatch(getEmployeeFollowUpsStats())
-      : dispatch(getFollowUpsStats());
+      ? dispatch(getEmployeeFollowUpsStats(option))
+      : dispatch(getFollowUpsStats(option));
   }, []);
 
   /////////////////////////////////////////////////// FUNCTIONS ////////////////////////////////////////////////
+
   const createData = (date, day, followUps = []) => {
     return {
       date,
@@ -50,7 +49,19 @@ const AllFollowUpsTable = () => {
     return createData(stat.date, DAYS[date.getDay()], stat.followUps);
   });
 
-  const sortedRow = rows.reverse();
+  const sortedRow = useMemo(() => {
+    if (!followUpsStats) return [];
+
+    return followUpsStats
+      .map((stat) => {
+        const dateObj = new Date(stat.date);
+        const formattedDate = moment(stat.date).format("DD/MM/YYYY");
+        const day = DAYS[dateObj.getDay()];
+
+        return createData(formattedDate, day, stat.followUps);
+      })
+      .reverse();
+  }, [followUpsStats]);
 
   const columns = [
     {
@@ -147,23 +158,23 @@ const AllFollowUpsTable = () => {
           placement="bottom">
           <span
             className={`border-[1px] px-[8px] py-[4px] rounded-full capitalize font-primary font-medium 
-            ${params.row?.status == "closedWon" ? "border-green-500 text-green-500" :
-              params.row?.status == "closedLost" ? "border-red-400 text-red-400" : 
-              params.row?.status == "followUp" ? "border-sky-400 text-sky-400" : 
-              params.row?.status == "contactedClient" ? "border-orange-400 text-orange-400" : 
-              params.row?.status == "callNotAttend" ? "border-lime-400 text-lime-500" : 
-              params.row?.status == "visitSchedule" ? "border-teal-400 text-teal-500" : 
-              params.row?.status == "visitDone" ? "border-indigo-400 text-indigo-500" : 
-              params.row?.status == "newClient" ? "border-rose-700 text-rose-700" : "border-gray-700 text-gray-700"}`}>
+          ${params.row?.status == "closedWon" ? "border-green-500 text-green-500" : ""} 
+          ${params.row?.status == "closedLost" ? "border-red-400 text-red-400" : ""} 
+          ${params.row?.status == "followUp" ? "border-sky-400 text-sky-400" : ""}
+          ${params.row?.status == "contactedClient" ? "border-orange-400 text-orange-400" : ""} 
+          ${params.row?.status == "callNotAttend" ? "border-lime-400 text-lime-500" : ""} 
+          ${params.row?.status == "visitSchedule" ? "border-teal-400 text-teal-500" : ""} 
+          ${params.row?.status == "visitDone" ? "border-indigo-400 text-indigo-500" : ""}
+          ${params.row?.status == "newClient" ? "border-rose-700 text-rose-700" : ""}`}>
             <span>
-              {params.row?.status == "closedWon" ? <div>Closed Won</div> : 
-              params.row?.status == "closedLost" ? <div>Closed Lost</div> : 
-              params.row?.status == "followUp" ? <div>Follow Up</div> : 
-              params.row?.status == "contactedClient" ? <div>Contacted Client</div> : 
-              params.row?.status == "callNotAttend" ? <div>Call Not Attend</div> : 
-              params.row?.status == "visitSchedule" ? <div>Visit Schedule</div> : 
-              params.row?.status == "visitDone" ? <div>Visit Done</div> : 
-              params.row?.status == "newClient" ? <div>New Client</div> : <div>{params.row?.status}</div>}
+              {params.row?.status == "closedWon" ? <div>Closed Won</div> : <div></div>}
+              {params.row?.status == "closedLost" ? <div>Closed Lost</div> : <div></div>}
+              {params.row?.status == "followUp" ? <div>Follow Up</div> : <div></div>}
+              {params.row?.status == "contactedClient" ? <div>Contacted Client</div> : <div></div>}
+              {params.row?.status == "callNotAttend" ? <div>Call Not Attend</div> : <div></div>}
+              {params.row?.status == "visitSchedule" ? <div>Visit Schedule</div> : <div></div>}
+              {params.row?.status == "visitDone" ? <div>Visit Done</div> : <div></div>}
+              {params.row?.status == "newClient" ? <div>New Client</div> : <div></div>}
             </span>
           </span>
         </Tooltip>
@@ -223,14 +234,18 @@ const AllFollowUpsTable = () => {
         </div>
       ) : (
         <>
-          {sortedRow.map((row) => (
-            <div className="flex flex-col gap-2 ">
-              <h2 className="text-primary-red text-[24px] capitalize font-light">
-                {row.date} {row.day}
-              </h2>
-              <Table rows={row.followUps} columns={columns} rowsPerPage={10} />
-            </div>
-          ))}
+          {sortedRow.length > 0 ? (
+            sortedRow.map((row, idx) => (
+              <div key={idx} className="flex flex-col gap-2">
+                <h2 className="text-primary-red text-[24px] capitalize font-light">
+                  {row.date} {row.day}
+                </h2>
+                <Table rows={row.followUps} columns={columns} rowsPerPage={10} />
+              </div>
+            ))
+          ) : (
+            <div className="text-center text-gray-500 text-lg">No follow-ups found.</div>
+          )}
         </>
       )}
     </div>

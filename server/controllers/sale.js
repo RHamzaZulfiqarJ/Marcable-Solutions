@@ -40,14 +40,14 @@ export const getLeadSales = async (req, res, next) => {
 export const createSale = async (req, res, next) => {
     try {
 
-        const { leadId, staff, clientName, paymentType, netPrice, receivedAmount, profit } = req.body
+        const { leadId, staff, clientName, paymentType, number, netPrice, receivedAmount, profit } = req.body
 
         let newSale;
         if (leadId) {
-            newSale = await Sale.create({ leadId, staff, clientName, paymentType, netPrice, receivedAmount, profit })
+            newSale = await Sale.create({ leadId, staff, clientName, paymentType, number, netPrice, receivedAmount, profit })
         }
         else {
-            newSale = await Sale.create({ staff, clientName, paymentType, netPrice, receivedAmount, profit })
+            newSale = await Sale.create({ staff, clientName, paymentType, number, netPrice, receivedAmount, profit })
         }
 
         res.status(200).json({ result: newSale, message: 'sale created successfully', success: true })

@@ -31,7 +31,7 @@ const Attachments = ({ open, setOpen, leadId }) => {
   useEffect(() => {
     currentLead
       ?
-      dispatch(setUrlsReducer([...currentLead?.images]))
+      dispatch(setUrlsReducer([...(Array.isArray(currentLead?.images) ? currentLead.images : [])]))
       :
       setOpen(false)
   }, [currentLead])

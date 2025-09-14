@@ -53,7 +53,18 @@ const TranscriptPage = ({ }) => {
   ////////////////////////////////////// FUNCTIONS ///////////////////////////////////
 
   return (
-    <div ref={pdfRef} className="completePdfPage w-full my-4 font-primary">
+    <div
+      ref={pdfRef}
+      className="completePdfPage w-full my-4 font-primary"
+      style={{
+        width: "1024px",
+        height: "auto",
+        margin: "0 auto",
+        transform: "scale(1)", // no scaling
+        transformOrigin: "top left",
+        background: "#fff",
+      }}
+    >
       <div className="flex justify-center">
         <img className="h-28" src="/images/logo.png" alt="" />
       </div>

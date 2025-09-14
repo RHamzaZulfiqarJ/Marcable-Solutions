@@ -56,150 +56,149 @@ export const getEmployeeFollowUps = async (req, res, next) => {
 };
 
 export const getEmployeeFollowUpsStats = async (req, res, next) => {
-    try {
-        const currentDate = new Date();
-        console.log("Current Date:", currentDate);
+  try {
+    const currentDate = new Date();
 
-        const followUps = await FollowUp.find()
-            .populate({
-                path: 'leadId',
-                match: { isArchived: false },
-                populate: [
-                    { path: 'client' },
-                    { path: 'property' },
-                    { path: 'allocatedTo' },
-                ],
-            })
-            .exec();
+    const followUps = await FollowUp.find()
+      .populate({
+        path: "leadId",
+        match: { isArchived: false },
+        populate: [
+          { path: "client" },
+          { path: "property" },
+          { path: "allocatedTo" },
+        ],
+      })
+      .exec();
 
-        console.log("Fetched Follow-Ups:", followUps.length);
+    const employeeFollowUps = followUps.filter((followUp) => {
+      const isAllocated = followUp.leadId?.allocatedTo.some(
+        (emp) => emp._id.toString() === req.user?._id.toString()
+      );
+      return isAllocated;
+    });
 
-        const employeeFollowUps = followUps.filter(followUp => {
-            const isAllocated = followUp.leadId?.allocatedTo.some(
-                emp => emp._id.toString() === req.user?._id.toString()
-            );
-            if (isAllocated) {
-                console.log("Matched Follow-Up:", followUp._id);
-            }
-            return isAllocated;
-        });
+    const latestFollowUpsMap = {};
 
-        console.log("Employee Follow-Ups:", employeeFollowUps.length);
+    for (const followUp of employeeFollowUps) {
+      const leadId = followUp.leadId?._id?.toString();
+      if (!leadId) continue;
 
-        const groupedFollowUps = employeeFollowUps.reduce((acc, followUp) => {
-            if (!followUp.followUpDate) return acc;
-
-            let normalizedDate;
-            try {
-                normalizedDate = format(
-                    parse(followUp.followUpDate, 'd-M-yy', new Date()) || new Date(followUp.followUpDate),
-                    'yyyy-MM-dd'
-                );
-            } catch {
-                normalizedDate = followUp.followUpDate;
-            }
-
-            const followUpDate = normalizedDate || followUp.followUpDate;
-            if (!acc[followUpDate]) acc[followUpDate] = [];
-            acc[followUpDate].push(followUp);
-
-            return acc;
-        }, {});
-
-        console.log("Grouped Follow-Ups by Date:", Object.keys(groupedFollowUps));
-
-        const responseArray = Object.keys(groupedFollowUps)
-            .sort((a, b) => new Date(a) - new Date(b))
-            .map(date => ({
-                date,
-                followUps: groupedFollowUps[date],
-            }));
-
-        console.log("Final Response Array:", responseArray);
-
-        res.status(200).json({
-            result: responseArray,
-            message: 'Employee follow-up stats fetched successfully.',
-            success: true,
-        });
-    } catch (error) {
-        console.error('Error fetching employee follow-up stats:', error);
-        next(createError(500, error.message));
+      if (
+        !latestFollowUpsMap[leadId] ||
+        new Date(followUp.createdAt) > new Date(latestFollowUpsMap[leadId].createdAt)
+      ) {
+        latestFollowUpsMap[leadId] = followUp;
+      }
     }
+
+    const groupedFollowUps = {};
+
+    for (const followUp of Object.values(latestFollowUpsMap)) {
+      if (!followUp.followUpDate) continue;
+
+      const followUpDateParsed = new Date(followUp.followUpDate);
+      if (followUpDateParsed > currentDate) continue;
+
+      let normalizedDate;
+      try {
+        normalizedDate = format(
+          parse(followUp.followUpDate, "d-M-yy", new Date()),
+          "yyyy-MM-dd"
+        );
+      } catch {
+        normalizedDate = format(new Date(followUp.followUpDate), "yyyy-MM-dd");
+      }
+
+      if (!groupedFollowUps[normalizedDate]) groupedFollowUps[normalizedDate] = [];
+      groupedFollowUps[normalizedDate].push(followUp);
+    }
+
+    const responseArray = Object.keys(groupedFollowUps)
+      .sort((a, b) => new Date(a) - new Date(b))
+      .map((date) => ({
+        date,
+        followUps: groupedFollowUps[date],
+      }));
+
+    res.status(200).json({
+      result: responseArray,
+      message: "Employee follow-up stats fetched successfully.",
+      success: true,
+    });
+  } catch (error) {
+    console.error("Error fetching employee follow-up stats:", error);
+    next(createError(500, error.message));
+  }
 };
 
-
 export const getFollowUpsStats = async (req, res, next) => {
-    try {
-        const currentDate = new Date();
-        console.log("Current Date:", currentDate);
+  try {
+    const { filter } = req.query; // "today", "all", "month"
 
-        // Fetch all follow-ups with nested populates and filter by non-archived leads
-        const followUps = await FollowUp.find()
-            .populate({
-                path: 'leadId',
-                match: { isArchived: false },
-                populate: [
-                    { path: 'client' },
-                    { path: 'property' },
-                    { path: 'allocatedTo' },
-                ],
-            }).exec();
-        
-        console.log("Fetched Follow-Ups:", followUps.length);
+    const followUps = await FollowUp.find({ followUpDate: { $ne: null } })
+      .populate({
+        path: 'leadId',
+        match: { isArchived: false },
+        select: 'status client property allocatedTo city clientPhone clientName',
+        populate: [
+          { path: 'client', select: 'firstName lastName' },
+          { path: 'property', select: 'title' },
+          { path: 'allocatedTo', select: 'firstName lastName' },
+        ],
+      });
 
-        // Filter, map, and normalize follow-ups based on lead existence and valid date
-        const validFollowUps = followUps.reduce((acc, followUp) => {
-            if (followUp.leadId && followUp.followUpDate) {
-                // Directly use the date if it's in "yyyy-MM-dd" format
-                const normalizedDate = followUp.followUpDate;
+    const validFollowUps = followUps.filter(fu => fu.leadId && fu.followUpDate);
 
-                console.log(`Normalized Date for followUp ${followUp._id}:`, normalizedDate);
-
-                followUp.followUpDate = normalizedDate;
-                acc.push(followUp);
-            }
-            return acc;
-        }, []);
-
-        console.log("Valid Follow-Ups after filtering:", validFollowUps.length);
-
-        // Get the latest follow-up for each lead based on createdAt timestamp
-        const latestFollowUpsByLead = validFollowUps.reduce((result, followUp) => {
-            const leadId = followUp.leadId._id.toString();
-            if (!result[leadId] || new Date(followUp.createdAt) > new Date(result[leadId].createdAt)) {
-                result[leadId] = followUp;
-            }
-            return result;
-        }, {});
-
-        console.log("Latest Follow-Ups by Lead:", Object.keys(latestFollowUpsByLead).length);
-
-        // Convert the latest follow-ups to an array, sorted and grouped by followUpDate
-        const groupedByDate = Object.values(latestFollowUpsByLead).reduce((acc, followUp) => {
-            const followUpDate = followUp.followUpDate;
-            if (!acc[followUpDate]) acc[followUpDate] = [];
-            acc[followUpDate].push(followUp);
-            return acc;
-        }, {});
-
-        console.log("Grouped Follow-Ups by Date:", Object.keys(groupedByDate));
-
-        // Sort dates and create the final response structure
-        const responseArray = Object.keys(groupedByDate)
-            .sort((a, b) => new Date(a) - new Date(b))
-            .map(date => ({
-                date,
-                followUps: groupedByDate[date],
-            }));
-
-        console.log("Final Response Array:", responseArray);
-
-        res.status(200).json({ result: responseArray, message: "Stats fetched successfully.", success: true });
-    } catch (error) {
-        console.error("Error in getFollowUpsStats:", error);
-        next(createError(500, error.message));
+    const latestFollowUpsByLead = {};
+    for (const followUp of validFollowUps) {
+      const leadId = followUp.leadId._id.toString();
+      if (
+        !latestFollowUpsByLead[leadId] ||
+        new Date(followUp.createdAt) > new Date(latestFollowUpsByLead[leadId].createdAt)
+      ) {
+        latestFollowUpsByLead[leadId] = followUp;
+      }
     }
+
+    let filteredFollowUps = Object.values(latestFollowUpsByLead);
+
+    const today = new Date().toISOString().slice(0, 10);
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    if (filter === 'today') {
+      filteredFollowUps = filteredFollowUps.filter(fu => fu.followUpDate === today);
+    } else if (filter === 'month') {
+      filteredFollowUps = filteredFollowUps.filter(fu => {
+        const date = new Date(fu.followUpDate);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      });
+    }
+
+    const groupedByDate = {};
+    for (const followUp of filteredFollowUps) {
+      const date = followUp.followUpDate;
+      if (!groupedByDate[date]) groupedByDate[date] = [];
+      groupedByDate[date].push(followUp);
+    }
+
+    const responseArray = Object.keys(groupedByDate)
+      .sort((a, b) => new Date(a) - new Date(b))
+      .map(date => ({
+        date,
+        followUps: groupedByDate[date],
+      }));
+
+    res.status(200).json({
+      result: responseArray,
+      message: 'Stats fetched successfully.',
+      success: true,
+    });
+  } catch (error) {
+    console.error('Error in getFollowUpsStats:', error);
+    next(createError(500, error.message));
+  }
 };
 
 

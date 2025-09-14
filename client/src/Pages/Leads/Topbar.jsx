@@ -8,6 +8,7 @@ import { getEmployeeLeads, getLeads, searchLead } from "../../redux/action/lead"
 import { PiArchive, PiChartBar, PiMagnifyingGlass, PiNote, PiUploadSimple } from "react-icons/pi";
 import { IoRefresh } from "react-icons/io5";
 import { FiFilter, FiList, FiUser } from "react-icons/fi";
+import { FaFacebookF } from "react-icons/fa";
 import CreateLead from "./CreateLead";
 import UploadLeads from "./UploadLeads";
 
@@ -16,15 +17,17 @@ const Topbar = ({
   setOptions,
   isFiltered,
   setIsFiltered,
+  filters,
+  setFilters,
   openFilters,
   setOpenFilters,
   search,
   setSearch,
 }) => {
   ////////////////////////////////////////// VARIABLES //////////////////////////////////////
-   const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const { leads, allLeads, isFetching, error } = useSelector((state) => state.lead);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { leads, allLeads, isFetching, error } = useSelector((state) => state.lead);
   const { pathname } = useLocation();
   const title = pathname.split("/")[1];
   const pathArr = pathname.split("/").filter((item) => item != "");
@@ -59,13 +62,6 @@ const Topbar = ({
       showEmployeeLeads: false,
     }));
   };
-  const handleToggleShowEmployeeLeads = () => {
-    setOptions((pre) => ({
-      ...pre,
-      showEmployeeLeads: !options?.showEmployeeLeads,
-      showArchivedLeads: false,
-    }));
-  };
 
   const handleToggleIsKanbanView = () => {
     setOptions((pre) => ({ ...pre, isKanbanView: !options?.isKanbanView }));
@@ -93,6 +89,21 @@ const Topbar = ({
     }
   }
 
+  const handleClearFilters = () => {
+    const cleared = {
+      city: null,
+      status: null,
+      priority: null,
+      source: null,
+      property: null,
+      allocatedTo: null,
+      startingDate: null,
+      endingDate: null,
+    };
+    setFilters(cleared);
+    setIsFiltered(false);
+  };
+
   return (
     <div className="flex flex-col tracking-wide pb-8 font-primary">
       <div className="w-full text-[14px]">
@@ -105,7 +116,12 @@ const Topbar = ({
         {showOptionButtons && (
           <div className="flex items-center justify-end gap-2 md:mt-0 mt-4">
             {isFiltered && (
-              <Chip label="Filtered" onDelete={() => setIsFiltered(false)} deleteIcon={<Close />} />
+              <button
+                onClick={handleClearFilters}
+                className="flex flex-row bg-red-400 text-white px-3 py-1 rounded-md hover:bg-red-300 transition-all">
+                Clear Filters
+                <Close className="ml-2" />
+              </button>
             )}
             <div className="bg-[#ebf2f5] hover:bg-[#dfe6e8] p-1 pl-2 pr-2 rounded-md w-48">
               <FormControl>
@@ -139,6 +155,12 @@ const Topbar = ({
                 }`}>
                 <PiArchive className="text-[25px]" />
               </div>
+            </Tooltip>
+            <Tooltip title="Facebook Leads" arrow placement="top">
+              <Link to={"/leads/facebook"}
+                className="p-2 rounded-md cursor-pointer bg-[#ebf2f5] hover:bg-[#dfe6e8] text-[#a6b5bd]">
+                <FaFacebookF className="text-[25px]" />
+              </Link>
             </Tooltip>
             <Tooltip title="View" arrow placement="top">
               <div

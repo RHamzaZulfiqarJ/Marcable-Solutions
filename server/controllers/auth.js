@@ -47,26 +47,33 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
     try {
+        const { username, password: input_password } = req.body;
 
-        const { username, password: input_password } = req.body
+        if (!username || !input_password) return next(createError(400, 'Make sure to provide all the fields'));
 
-        if (!username || !input_password) return next(createError(400, 'Make sure to provide all the fields'))
+        const findedUser = await User.findOne({ username });
+        if (!findedUser) return next(createError(400, 'Wrong Credentials - username'));
 
-        const findedUser = await User.findOne({ username })
-        if (!findedUser) return next(createError(400, 'Wrong Credentials - username'))
+        if (findedUser.status === false) return next(createError(403, 'Your account is blocked.'));
 
-        const isPasswordCorrect = await bcrypt.compare(input_password, findedUser.password)
-        if (!isPasswordCorrect) return next(createError(401, 'Wrong Credentials - password'))
+        const isPasswordCorrect = await bcrypt.compare(input_password, findedUser.password);
+        if (!isPasswordCorrect) return next(createError(401, 'Wrong Credentials - password'));
 
-        const token = jwt.sign({ _id: findedUser._id, role: findedUser.role }, process.env.JWT_SECRET)
+        const token = jwt.sign(
+            { _id: findedUser._id, role: findedUser.role },
+            process.env.JWT_SECRET
+        );
 
-        res.status(201).json({ result: { ...findedUser._doc, token }, message: 'User logged in successfully', success: true })
+        res.status(201).json({
+            result: { ...findedUser._doc, token },
+            message: 'User logged in successfully',
+            success: true
+        });
 
     } catch (err) {
-        next(createError(500, err.message))
+        next(createError(500, err.message));
     }
-}
-
+};
 
 export const changePassword = async (req, res, next) => {
     try {

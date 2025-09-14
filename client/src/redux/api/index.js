@@ -55,6 +55,7 @@ export const createClient = (clientData) => API.post(`/user/create/client`, clie
 export const createEmployee = (employeeData) => API.post(`/user/create/employee`, employeeData)
 export const updateRole = (userId, role) => API.put(`/user/update-role/${userId}`, { role })
 export const updateUser = (userId, userData) => API.put(`/user/update/${userId}`, userData)
+export const updateStatus = (userId, status, password) => API.put(`/user/update/status/${userId}`, { status, password })
 export const deleteUser = (userId) => API.delete(`/user/delete/${userId}`)
 
 
@@ -150,8 +151,8 @@ export const deleteLead = (leadId) => API.delete(`/lead/delete/${leadId}`)
 export const getFollowUp = (followUpId) => API.get(`/followUp/get/single/${followUpId}`)
 export const getFollowUps = (leadId) => API.get(`/followUp/get/all/${leadId}`)
 export const getEmployeeFollowUps = (leadId) => API.get(`/followUp/get/employee/${leadId}`)
-export const getFollowUpsStats = () => API.get(`/followUp/get/stats`)
-export const getEmployeeFollowUpsStats = () => API.get(`/followUp/get/stats/employee`)
+export const getFollowUpsStats = (filter = "all") => API.get(`/followUp/get/stats?filter=${filter}`);
+export const getEmployeeFollowUpsStats = (filter = "all") => API.get(`/followUp/get/stats/employee?filter=${filter}`);
 export const createFollowUp = (followUpData) => API.post(`/followUp/create`, followUpData)
 export const deleteFollowUp = (followUpId) => API.delete(`/followUp/delete/${followUpId}',`)
 
@@ -196,3 +197,15 @@ export const getTranscripts = () => API.get(`/trasncript/get/all`)
 export const createTranscript = (transcriptData) => API.post(`/trasncript/create`, transcriptData)
 export const updateTranscript = (transcriptId, transcriptData) => API.put(`/trasncript/update/${transcriptId}`, transcriptData)
 export const deleteTranscript = (transcriptId) => API.delete(`/trasncript/delete/${transcriptId}`)
+
+// Meta Related Stuff
+export const createFacebookFields = (data) => API.post(`/facebook/create`, data)
+export const getLatestFacebookFields = () => API.get(`/facebook/get`)
+
+// Facebook Leads
+export const getPendingFacebookLeads = (userId) => API.get(`/facebook/leads/get/pending/${userId}`)
+export const getAcceptedFacebookLeads = (userId) => API.get(`/facebook/leads/get/accepted/${userId}`)
+export const getRejectedFacebookLeads = (userId) => API.get(`/facebook/leads/get/rejected/${userId}`)
+export const acceptFacebookLead = (userId, leadId) => API.post(`/facebook/leads/accept/${userId}/${leadId}`)
+export const rejectFacebookLead = (userId, leadId) => API.post(`/facebook/leads/reject/${userId}/${leadId}`)
+export const deleteFacebookLead = (userId, leadId) => API.post(`/facebook/leads/delete/${userId}/${leadId}`)
