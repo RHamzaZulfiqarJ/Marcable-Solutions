@@ -203,9 +203,11 @@ export const createFacebookFields = (data) => API.post(`/facebook/create`, data)
 export const getLatestFacebookFields = () => API.get(`/facebook/get`)
 
 // Facebook Leads
+export const getAllFacebookLeads = () => API.get(`/facebook/leads/get/all`)
 export const getPendingFacebookLeads = (userId) => API.get(`/facebook/leads/get/pending/${userId}`)
 export const getAcceptedFacebookLeads = (userId) => API.get(`/facebook/leads/get/accepted/${userId}`)
 export const getRejectedFacebookLeads = (userId) => API.get(`/facebook/leads/get/rejected/${userId}`)
 export const acceptFacebookLead = (userId, leadId) => API.post(`/facebook/leads/accept/${userId}/${leadId}`)
 export const rejectFacebookLead = (userId, leadId) => API.post(`/facebook/leads/reject/${userId}/${leadId}`)
 export const deleteFacebookLead = (userId, leadId) => API.post(`/facebook/leads/delete/${userId}/${leadId}`)
+export const deleteFacebookLeadFromDB = (leadId) => API.delete(`/facebook/leads/delete/${leadId}`)

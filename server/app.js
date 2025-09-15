@@ -30,6 +30,7 @@ import facebookRoutes from './routes/facebook.js'
 import facebookLeads from './routes/facebookLead.js'
 
 import { refreshToken } from './controllers/webhooks.js'
+import { facebookLeadDeletion } from './controllers/facebookLead.js'
 
 dotenv.config()
 const app = express()
@@ -85,4 +86,8 @@ mongoose.connect(CONNECTION_URL)
 cron.schedule("0 0 */50 * *", () => {
   console.log("⏳ Refreshing Facebook Access Token...");
   refreshToken();
+});
+
+cron.schedule("0 * * * *", () => {
+    facebookLeadDeletion();
 });

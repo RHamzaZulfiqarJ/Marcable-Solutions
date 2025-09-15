@@ -3,17 +3,19 @@ import Topbar from './Topbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { CCallout } from '@coreui/react';
 import { Table } from '../../../Components';
-import { deleteLead, getAcceptedLeads, getPendingLeads, getRejectedLeads, rejectLead } from '../../../redux/action/facebookLeads';
+import { deleteLead, deleteLeadFromDB, getAcceptedLeads, getAllLeads, getPendingLeads, getRejectedLeads, rejectLead } from '../../../redux/action/facebookLeads';
 import Countdown from 'react-countdown';
 import AcceptLead from './AcceptLead';
 import { Tooltip } from '@mui/material';
 import { PiTrashLight } from 'react-icons/pi';
+import { IoArrowRedoOutline } from "react-icons/io5";
+import { LuCheckCheck } from "react-icons/lu";
 
 const FbLeads = () => {
 
   ////////////////////////////////////// VARIABLES //////////////////////////////
   const dispatch = useDispatch();
-  const { pendingLeads, acceptedLeads, rejectedLeads, isFetching } = useSelector((state) => state.facebookLeads);
+  const { allLeads, pendingLeads, acceptedLeads, rejectedLeads, isFetching } = useSelector((state) => state.facebookLeads);
   const { loggedUser } = useSelector((state) => state.user);
 
   const [filter, setFilter] = useState({
@@ -23,9 +25,13 @@ const FbLeads = () => {
   });
 
   let leads = [];
-  if (filter.pending) leads = leads.concat(pendingLeads || []);
-  if (filter.accepted) leads = leads.concat(acceptedLeads || []);
-  if (filter.rejected) leads = leads.concat(rejectedLeads || []);
+  //if (loggedUser?.role === "super_admin") {
+  //  leads = allLeads;
+  //} else {
+    if (filter.pending) leads = leads.concat(pendingLeads || []);
+    if (filter.accepted) leads = leads.concat(acceptedLeads || []);
+    if (filter.rejected) leads = leads.concat(rejectedLeads || []);
+  //}
 
   const rows = leads.map(event => ({
     _id: event.id._id,
@@ -125,28 +131,60 @@ const FbLeads = () => {
       width: 170,
       renderCell: (params) => (
         <div className="flex gap-[10px] items-center transition-all">
-          <div className="flex gap-[4px] ">
-            {params.row.status.toLowerCase() == "pending" ? (
+          <div className="flex gap-4 ">
+            {loggedUser?.role === "super_admin" ? (
               <>
-                <button
-                  onClick={() => handleAcceptLead(params.row?.field_data, params.row?._id)}
-                  className="border-[1px] px-[8px] py-[4px] rounded-full capitalize font-primary font-medium text-[14x] border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-all duration-300">
-                  Approve
-                </button>
-                <button
-                  onClick={() => handleRejectLead(params.row._id)}
-                  className="border-[1px] px-[8px] py-[4px] rounded-full capitalize font-primary font-medium text-[14x] border-red-400 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-300">
-                  Reject
-                </button>
+                {params.row.status.toLowerCase() == "pending" && (
+                  <>
+                    <Tooltip arrow placement="bottom" title="Assign">
+                      {" "}
+                      <IoArrowRedoOutline
+                        /* onClick={() => handleAcceptLead(params.row?.field_data, params.row?._id)} */
+                        className="cursor-pointer text-blue-500 text-[23px] hover:text-blue-400"
+                      />
+                    </Tooltip>
+                    <Tooltip arrow placement="bottom" title="Approve">
+                      {" "}
+                      <LuCheckCheck
+                        onClick={() => handleAcceptLead(params.row?.field_data, params.row?._id)}
+                        className="cursor-pointer text-green-500 text-[23px] hover:text-green-400"
+                      />
+                    </Tooltip>
+                  </>
+                )}
+                <Tooltip arrow placement="bottom" title="Delete">
+                  {" "}
+                  <PiTrashLight
+                    onClick={() => handleDeleteLead(params.row._id)}
+                    className="cursor-pointer text-red-500 text-[23px] hover:text-red-400"
+                  />
+                </Tooltip>
               </>
             ) : (
-              <Tooltip placement="top" title="Delete">
-                {" "}
-                <PiTrashLight
-                  onClick={() => handleDeleteLead(params.row._id)}
-                  className="cursor-pointer text-red-500 text-[23px] hover:text-red-400"
-                />
-              </Tooltip>
+              <>
+                {params.row.status.toLowerCase() == "pending" ? (
+                  <>
+                    <button
+                      onClick={() => handleAcceptLead(params.row?.field_data, params.row?._id)}
+                      className="border-[1px] px-[8px] py-[4px] rounded-full capitalize font-primary font-medium text-[14x] border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-all duration-300">
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleRejectLead(params.row._id)}
+                      className="border-[1px] px-[8px] py-[4px] rounded-full capitalize font-primary font-medium text-[14x] border-red-400 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-300">
+                      Reject
+                    </button>
+                  </>
+                ) : (
+                  <Tooltip placement="top" title="Delete">
+                    {" "}
+                    <PiTrashLight
+                      onClick={() => handleDeleteLead(params.row._id)}
+                      className="cursor-pointer text-red-500 text-[23px] hover:text-red-400"
+                    />
+                  </Tooltip>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -164,9 +202,13 @@ const FbLeads = () => {
 
   ////////////////////////////////////// USEEFFECTS //////////////////////////////
   useEffect(() => {
-    if (filter.pending) dispatch(getPendingLeads(userId));
-    if (filter.accepted) dispatch(getAcceptedLeads(userId));
-    if (filter.rejected) dispatch(getRejectedLeads(userId));
+    if (loggedUser?.role === "super_admin") {
+      dispatch(getAllLeads());
+    } else {
+      if (filter.pending) dispatch(getPendingLeads(userId));
+      if (filter.accepted) dispatch(getAcceptedLeads(userId));
+      if (filter.rejected) dispatch(getRejectedLeads(userId));
+    }
   }, [filter, userId, dispatch]);
 
   ////////////////////////////////////// Functions //////////////////////////////
@@ -186,11 +228,17 @@ const FbLeads = () => {
   };
 
   const handleDeleteLead = (leadId) => {
-    dispatch(deleteLead(userId, leadId)).then(() => {
-      if (filter.pending) dispatch(getPendingLeads(userId));
-      if (filter.accepted) dispatch(getAcceptedLeads(userId));
-      if (filter.rejected) dispatch(getRejectedLeads(userId));
-    });
+    if (loggedUser?.role === "super_admin") {
+      dispatch(deleteLeadFromDB(leadId)).then(() => {
+        dispatch(getAllLeads());
+      })
+    } else {
+      dispatch(deleteLead(userId, leadId)).then(() => {
+        if (filter.pending) dispatch(getPendingLeads(userId));
+        if (filter.accepted) dispatch(getAcceptedLeads(userId));
+        if (filter.rejected) dispatch(getRejectedLeads(userId));
+      });
+    }
   };
   
   return (
@@ -199,14 +247,14 @@ const FbLeads = () => {
       <CCallout color="primary">
         <Table
           columns={columns}
-          rows={rows}
+          rows={loggedUser?.role === "super_admin" ? allLeads : rows}
           rowsPerPage={10}
           isFetching={isFetching}
           showSidebar={showSidebar}
         />
       </CCallout>
 
-      <AcceptLead setOpen={setOpenAcceptModal} open={openAcceptModel} scroll={scroll} fieldData={selectedLead} userId={userId} leadId={leadId} />
+      <AcceptLead setOpen={setOpenAcceptModal} open={openAcceptModel} scroll={scroll} fieldData={selectedLead} userId={userId} leadId={leadId} filter={filter} />
     </div>
   )
 }

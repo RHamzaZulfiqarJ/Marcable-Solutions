@@ -5,6 +5,7 @@ const FbLeadSlice = createSlice({
   initialState: {
     isFetching: false,
     error: null,
+    allLeads: [],
     pendingLeads: [],
     acceptedLeads: [],
     rejectedLeads: [],
@@ -23,6 +24,10 @@ const FbLeadSlice = createSlice({
     },
 
     // GET
+    getAllLeadsReducer: (state, action) => {
+      state.allLeads = action.payload.events;
+      state.isFetching = false;
+    },
     getPendingLeadsReducer: (state, action) => {
       state.pendingLeads = action.payload.events;
       state.isFetching = false;
@@ -60,6 +65,14 @@ const FbLeadSlice = createSlice({
       state.rejectedLeads = events.filter((ev) => ev.status === "rejected");
       state.isFetching = false;
     },
+    deleteLeadsFromDBReducer: (state, action) => {
+      const leadId = action.payload;
+      state.pendingLeads = state.pendingLeads.filter((l) => l._id !== leadId);
+      state.acceptedLeads = state.acceptedLeads.filter((l) => l._id !== leadId);
+      state.rejectedLeads = state.rejectedLeads.filter((l) => l._id !== leadId);
+      state.allLeads = state.allLeads.filter((l) => l._id !== leadId);
+      state.isFetching = false;
+    }
   },
 });
 
@@ -67,12 +80,14 @@ export const {
   start,
   end,
   error,
+  getAllLeadsReducer,
   getPendingLeadsReducer,
   getAcceptedLeadsReducer,
   getRejectedLeadsReducer,
   acceptLeadsReducer,
   rejectLeadsReducer,
   deleteLeadsReducer,
+  deleteLeadsFromDBReducer,
 } = FbLeadSlice.actions;
 
 export default FbLeadSlice.reducer;

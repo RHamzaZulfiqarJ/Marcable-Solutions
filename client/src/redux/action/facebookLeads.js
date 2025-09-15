@@ -3,14 +3,27 @@ import * as api from "../api";
 import {
   start,
   end,
+  getAllLeadsReducer,
   getAcceptedLeadsReducer,
   getPendingLeadsReducer,
   getRejectedLeadsReducer,
   acceptLeadsReducer,
   rejectLeadsReducer,
   deleteLeadsReducer,
+  deleteLeadsFromDBReducer,
   error,
 } from "../reducer/facebookLeads";
+
+export const getAllLeads = (userId) => async (dispatch) => {
+  try {
+    dispatch(start());
+    const response = await api.getAllFacebookLeads();
+    dispatch(getAllLeadsReducer(response.data));
+    dispatch(end());
+  } catch (error) {
+    dispatch(error(error.message));
+  }
+}
 
 export const getPendingLeads = (userId) => async (dispatch) => {
   try {
@@ -76,4 +89,15 @@ export const deleteLead = (userId, leadId) => async (dispatch) => {
     } catch (err) {
         dispatch(error(err.message))
     }
+}
+
+export const deleteLeadFromDB = (leadId) => async (dispatch) => {
+  try {
+      dispatch(start())
+      const { data } = await api.deleteFacebookLeadFromDB(leadId)
+      dispatch(deleteLeadsFromDBReducer(data.leadId))
+      dispatch(end())
+  } catch (err) {
+      dispatch(error(err.message))
+  }
 }

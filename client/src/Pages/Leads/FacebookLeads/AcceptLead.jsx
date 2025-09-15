@@ -15,13 +15,13 @@ import {
 import { PiNotepad, PiUser, PiXLight } from "react-icons/pi";
 import { getProjects } from "../../../redux/action/project";
 import { createLead } from "../../../redux/action/lead";
-import { acceptLead, getPendingLeads } from "../../../redux/action/facebookLeads";
+import { acceptLead, getAcceptedLeads, getAllLeads, getPendingLeads, getRejectedLeads } from "../../../redux/action/facebookLeads";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const AcceptLead = ({ setOpen, open, scroll, fieldData, userId, leadId }) => {
+const AcceptLead = ({ setOpen, open, scroll, fieldData, userId, leadId, filter }) => {
   //////////////////////////////////////// VARIABLES ////////////////////////////////////
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -93,7 +93,17 @@ const AcceptLead = ({ setOpen, open, scroll, fieldData, userId, leadId }) => {
         dispatch(acceptLead(userId, leadId))
     })
     .then(() => {
-      dispatch(getPendingLeads(userId));
+      if (loggedUser?.role === "super_admin") {
+        dispatch(deleteLeadFromDB(leadId)).then(() => {
+          dispatch(getAllLeads());
+        })
+      } else {
+        dispatch(deleteLead(userId, leadId)).then(() => {
+          if (filter.pending) dispatch(getPendingLeads(userId));
+          if (filter.accepted) dispatch(getAcceptedLeads(userId));
+          if (filter.rejected) dispatch(getRejectedLeads(userId));
+        });
+      }
     });
 
     setLeadData(initialLeadState);

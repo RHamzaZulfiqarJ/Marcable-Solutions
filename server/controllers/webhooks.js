@@ -65,7 +65,7 @@ export const postWebhookEvents = async (req, res) => {
         `https://graph.facebook.com/v23.0/${leadId}?access_token=${data[0]?.pageAccessToken || ""}`
       );
 
-      const buffer = await FbLead.create({
+      const lead = await FbLead.create({
         leadId: response.data?.id,
         createdTime: new Date(response.data?.created_time),
         field_data:  response.data?.field_data,
@@ -74,13 +74,13 @@ export const postWebhookEvents = async (req, res) => {
 
       await User.updateMany(
         { role: "employee" },
-        { $push: { events: { id: buffer._id, status: 'pending' } } }
+        { $push: { events: { id: lead._id, status: 'pending' } } }
       );
 
-      await FacebookEvent.create({
+      /* await FacebookEvent.create({
         title: "Facebook Lead",
         description: "There are some leads from Facebook.",
-      });
+      }); */
     }
 
     res.sendStatus(200);

@@ -11,6 +11,7 @@ const facebookLeadSchema = new Schema({
   field_data: { type: [fieldDataSchema], required: true },
   eventTitle: {type: String, required: true},
   status: {type: String, default: 'pending', enum: ['accepted', 'pending', 'rejected']},
+  expired: {type: Boolean, default: false},
 });
 
 const FacebookLead = model("fbLead", facebookLeadSchema);

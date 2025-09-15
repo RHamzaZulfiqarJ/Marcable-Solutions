@@ -2,16 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Path } from "../../../utils";
 import { FormControl, Input, InputAdornment, Tooltip } from "@mui/material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { PiMagnifyingGlass } from "react-icons/pi";
 import { IoRefresh } from "react-icons/io5";
 import { FiFilter } from "react-icons/fi";
-import { getPendingLeads } from "../../../redux/action/facebookLeads";
+import { getAcceptedLeads, getAllLeads, getPendingLeads, getRejectedLeads } from "../../../redux/action/facebookLeads";
 import Filter from "./Filter";
 
 const Topbar = ({ userId, filter, setFilter }) => {
   ////////////////////////////////////////// VARIABLES ///////////////////////////////////
   const dispatch = useDispatch();
+  const { loggedUser } = useSelector((state) => state.user);
+
   ////////////////////////////////////////// STATES //////////////////////////////////////
   const [openFilters, setOpenFilters] = useState(false);
 
@@ -24,7 +26,13 @@ const Topbar = ({ userId, filter, setFilter }) => {
   };
 
   const handleRefreshLeads = () => {
-    dispatch(getPendingLeads(userId));
+    if (loggedUser?.role === "super_admin") {
+      dispatch(getAllLeads());
+    } else {
+      if (filter.pending) dispatch(getPendingLeads(userId));
+      if (filter.accepted) dispatch(getAcceptedLeads(userId));
+      if (filter.rejected) dispatch(getRejectedLeads(userId));
+    }
   }
 
   return (
