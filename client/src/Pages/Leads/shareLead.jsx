@@ -32,6 +32,7 @@ const ShiftLead = ({ open, setOpen }) => {
     return currentLead?.allocatedTo?.every((allocatedTo) => allocatedTo._id != employee._id);
   })
   .map(({ _id, username }) => ({ _id, username }));
+  
 
 
   ////////////////////////////////////// STATES  /////////////////////////////////////
