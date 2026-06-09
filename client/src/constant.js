@@ -1,5 +1,5 @@
-export const baseURL = 'https://server.realtors.marcablesolution.com/api/v1'
-export const rootURL = 'https://server.realtors.marcablesolution.com/'
+export const baseURL = 'https://marcable-solutions.onrender.com/api/v1'
+export const rootURL = 'https://marcable-solutions.onrender.com/'
 
 //export const baseURL = 'http://localhost:4000/api/v1'
 //export const rootURL = 'http://localhost:4000'
